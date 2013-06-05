@@ -3,7 +3,7 @@
 Plugin Name: Login Alert Notification
 Plugin URI: http://daisukeblog.com/
 Description: Notify alerts with Email and Push Notifiaction Services if someone has tried to login to your WordPress dashboard.
-Version: 0.38
+Version: 0.40
 Author: hondamarlboro
 Author URI: http://daisukeblog.com/
 License: GPLv2 or later http://www.gnu.org/licenses/gpl-2.0.html
@@ -53,7 +53,7 @@ require "class.php-prowl.php";
 require "class.nma.php";
 require "class.pushover.php";
 
-function login_alerts_imkayac() { 
+function login_alerts() { 
 
 	global $login_alerts_options;
 	
@@ -80,8 +80,18 @@ function login_alerts_imkayac() {
 
 	$message = "WP Login Attempt".htmlentities($who)."\nDate: ".$blogtime." \nIP: ".$ip." \nHostname: ".$hostaddress." \nBrowser: ".htmlentities($browser)." \nReferral: ".htmlentities($referred)." \n";
 
+	//Exclude admin user
+	if ( isset($login_alerts_options['excludeadmin_enable']) && $_POST['log']=='admin') {
+		return;
+	}
+
+	//Exclude just-opened
+	if ( isset($login_alerts_options['excludereach_enable']) && !isset($_POST['log'])) {
+		return;
+	}
+
 	//Email
-	if ( $login_alerts_options['email_enable'] ){
+	if ( isset($login_alerts_options['email_enable']) ){
 		$admin_email = get_settings('admin_email');
 		sleep(5);
 
@@ -96,7 +106,7 @@ function login_alerts_imkayac() {
 	}
 
 	//im.kayac.com
-	if ( $login_alerts_options['imkayac_enable'] ){
+	if ( isset($login_alerts_options['imkayac_enable']) ){
 		$username = $login_alerts_options['username'];
 		$password = $login_alerts_options['secretkey'];
 
@@ -128,7 +138,7 @@ function login_alerts_imkayac() {
 	}
 
 	//Prowl
-	if ( $login_alerts_options['prowl_enable'] ){
+	if ( isset($login_alerts_options['prowl_enable']) ){
 		$prowl_api_key = $login_alerts_options['prowlapikey'];
 		$prowl = new Prowl();
 		$prowl->setApiKey($prowl_api_key);
@@ -142,7 +152,7 @@ function login_alerts_imkayac() {
 	}
 	
 	//NMA
-	if ( $login_alerts_options['nma_enable'] ){
+	if ( isset($login_alerts_options['nma_enable']) ){
 		$nma = new NotifyMyAndroid(); 
 
 		$nma_params = array(
@@ -158,7 +168,7 @@ function login_alerts_imkayac() {
 	}
 
 	//Pushover
-	if ( $login_alerts_options['po_enable'] ){
+	if ( isset($login_alerts_options['po_enable']) ){
 		$push = new Pushover();
 		$push->setToken($login_alerts_options['poapptoken']);
 		$push->setUser($login_alerts_options['poapikey']);
@@ -176,21 +186,21 @@ function login_alerts_imkayac() {
 
 }
 
-add_action( 'login_enqueue_scripts', 'login_alerts_imkayac' );
+add_action( 'login_enqueue_scripts', 'login_alerts' );
 
-function login_alerts_imkayac_url() {
+function login_alerts_url() {
     return get_bloginfo( 'url' );
 }
 
-add_filter( 'login_headerurl', 'login_alerts_imkayac_url' );
+add_filter( 'login_headerurl', 'login_alerts_url' );
 
-function login_alerts_imkayac_url_title() {
+function login_alerts_url_title() {
     return 'All login attempts are reported to the Administrator. You have been warned.';
 }
-add_filter( 'login_headertitle', 'login_alerts_imkayac_url_title' );
+add_filter( 'login_headertitle', 'login_alerts_url_title' );
 
 if (!empty($_POST['log'])) {
-	login_alerts_imkayac();
+	login_alerts();
 }
 
 ?>
