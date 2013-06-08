@@ -3,7 +3,7 @@
 Plugin Name: Login Alert Notification
 Plugin URI: http://daisukeblog.com/
 Description: Notify alerts with Email and Push Notifiaction Services if someone has tried to login to your WordPress dashboard.
-Version: 0.45
+Version: 0.46
 Author: hondamarlboro
 Author URI: http://daisukeblog.com/
 License: GPLv2 or later http://www.gnu.org/licenses/gpl-2.0.html
@@ -108,7 +108,7 @@ function login_alerts() {
 		$password = $login_alerts_options['secretkey'];
 
 		$data = array(
-			"message" => $message,
+			"message" => $subject."\n".$message,
 			"password" => $password,
 		);
 
