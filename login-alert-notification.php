@@ -3,7 +3,7 @@
 Plugin Name: Login Alert Notification
 Plugin URI: http://daisukeblog.com/
 Description: Notify alerts with Email and Push Notifiaction Services if someone has tried to login to your WordPress dashboard.
-Version: 0.40
+Version: 0.45
 Author: hondamarlboro
 Author URI: http://daisukeblog.com/
 License: GPLv2 or later http://www.gnu.org/licenses/gpl-2.0.html
@@ -65,20 +65,17 @@ function login_alerts() {
 	/* Set current time */
 	$blogtime = date('Y-m-d H:i:s',current_time('timestamp',0)); 
 
-	/* User attempting to login */
-	if(isset($_POST['log'])) {
-		$who = " by [id:".($_POST['log'])."]";
-	} else {
-		$who = " Page Has Been Reached but not tried to login yet.";
-	}
-
 	if(isset($_POST['log'])) {
 		$subject = "[id:".($_POST['log'])."] tried to login";
 	} else {
-		$subject = "Login page opened";
+		$subject = "Login page opened but not tried to login yet";
 	}
 
-	$message = "WP Login Attempt".htmlentities($who)."\nDate: ".$blogtime." \nIP: ".$ip." \nHostname: ".$hostaddress." \nBrowser: ".htmlentities($browser)." \nReferral: ".htmlentities($referred)." \n";
+	if (isset($login_alerts_options['excludefail_enable'])) {
+		$subject = "[id:".($_POST['log'])."] successfully logged in";
+	}
+
+	$message = "Date: ".$blogtime." \nIP: ".$ip." \nHostname: ".$hostaddress." \nBrowser: ".htmlentities($browser)." \nReferral: ".htmlentities($referred)." \n";
 
 	//Exclude admin user
 	if ( isset($login_alerts_options['excludeadmin_enable']) && $_POST['log']=='admin') {
@@ -92,7 +89,7 @@ function login_alerts() {
 
 	//Email
 	if ( isset($login_alerts_options['email_enable']) ){
-		$admin_email = get_settings('admin_email');
+		$admin_email = get_option('admin_email');
 		sleep(5);
 
 		$to = $admin_email; //E-Mails the site owner, set in the dashboard Settings panel.
@@ -148,7 +145,7 @@ function login_alerts() {
 		$description = $message;
 		$url_prowl = "";
 		$priority = 0;
-		$msg = $prowl->add($application,$event,$priority,$description,$url_prowl);
+		$prowl->add($application,$event,$priority,$description,$url_prowl);
 	}
 	
 	//NMA
@@ -180,18 +177,22 @@ function login_alerts() {
 		$push->setPriority(0);
 		//$push->setTimestamp(time());
 		//$push->setDebug(true);
-
 		$push->send();
 	}
 
 }
 
-add_action( 'login_enqueue_scripts', 'login_alerts' );
+
+
+if ( isset($login_alerts_options['excludefail_enable'])) {
+	add_action( 'wp_login', 'login_alerts' );
+} else {
+	add_action( 'login_enqueue_scripts', 'login_alerts' );
+}
 
 function login_alerts_url() {
     return get_bloginfo( 'url' );
 }
-
 add_filter( 'login_headerurl', 'login_alerts_url' );
 
 function login_alerts_url_title() {
@@ -199,8 +200,18 @@ function login_alerts_url_title() {
 }
 add_filter( 'login_headertitle', 'login_alerts_url_title' );
 
-if (!empty($_POST['log'])) {
+if (!empty($_POST['log']) && !isset($login_alerts_options['excludefail_enable'])) {
 	login_alerts();
+}
+
+if (isset($login_alerts_options['failredirect_enable'])) {
+
+	add_action('wp_login_failed', 'my_front_end_login_fail'); 
+
+	function my_front_end_login_fail(){
+		wp_redirect( get_option('home'), 302 );
+		exit;
+	}
 }
 
 ?>
