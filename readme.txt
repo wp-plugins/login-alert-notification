@@ -4,7 +4,7 @@ Donate link:
 Tags: Admin, Login Alert
 Requires at least: 3.0.1
 Tested up to: 3.5.1
-Stable tag: 0.45
+Stable tag: 0.46
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,9 +31,13 @@ You can also exclude annoying notification like admin user's access if you've al
 Please check whether or not you fill in the email address of General &gt; Settings. I strongly recommend you put another email address to 'From' box of plugin settings.
 
 == Screenshots ==
+1.Receive notification on Prowl for iOS
 
 
 == Changelog ==
+
+= 0.46 =
+* Minor bug fix
 
 = 0.45 =
 * Add new feature of redirecting to blog top if login attempt failed
