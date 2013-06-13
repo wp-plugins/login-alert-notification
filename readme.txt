@@ -31,7 +31,7 @@ You can also exclude annoying notification like admin user's access if you've al
 Please check whether or not you fill in the email address of General &gt; Settings. I strongly recommend you put another email address to 'From' box of plugin settings.
 
 == Screenshots ==
-1.Receive notification on Prowl for iOS
+1. Receive notification on Prowl for iOS
 
 
 == Changelog ==
