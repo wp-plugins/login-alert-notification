@@ -4,7 +4,7 @@ Donate link:
 Tags: Admin, Login Alert
 Requires at least: 3.0.1
 Tested up to: 3.5.1
-Stable tag: 0.46
+Stable tag: 0.51
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Notify alerts with Email and Push Notifiaction Services if detected someone acce
 
 == Description ==
 
-Notify to your Windows, Mac, Tablet PC and Smartphones via Email and push notification services such as Prowl, Notify My Android, im.kayac.com and Pushover if detected someone trying to your WordPress login form.
+Notify alerts of login success/failure to your Windows, Mac, Tablet PC and Smartphones via Email and push notification services such as Prowl, Notify My Android, im.kayac.com and Pushover if detected someone trying to your WordPress login form.
 
 You can also exclude annoying notification like admin user's access if you've already removed it from user list. And if someone fails to login then redirected to blog top page URL.
 
@@ -31,10 +31,15 @@ You can also exclude annoying notification like admin user's access if you've al
 Please check whether or not you fill in the email address of General &gt; Settings. I strongly recommend you put another email address to 'From' box of plugin settings.
 
 == Screenshots ==
-1. Receive notification on Prowl for iOS
-
+1. Notification on Prowl for iOS
+2. Status bar of Android smartphone via Notify My Android
 
 == Changelog ==
+
+= 0.51 =
+
+* Update: Alert shows you login success/failure and submit status from login form
+* Minor bug fix
 
 = 0.46 =
 * Minor bug fix
@@ -56,6 +61,9 @@ Please check whether or not you fill in the email address of General &gt; Settin
 * Add some push notification services (Prowl, NMA, Pushover)
 
 == Upgrade Notice ==
+
+= 0.51 =
+* More detail alert - login success/failure and login form submitted with blank or not
 
 = 0.45 =
 * NEW: Redirection after login failure

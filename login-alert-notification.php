@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Login Alert Notification
-Plugin URI: http://daisukeblog.com/
+Plugin URI: http://wordpress.org/plugins/login-alert-notification/
 Description: Notify alerts with Email and Push Notifiaction Services if someone has tried to login to your WordPress dashboard.
-Version: 0.46
+Version: 0.51
 Author: hondamarlboro
 Author URI: http://daisukeblog.com/
 License: GPLv2 or later http://www.gnu.org/licenses/gpl-2.0.html
@@ -53,7 +53,7 @@ require "class.php-prowl.php";
 require "class.nma.php";
 require "class.pushover.php";
 
-function login_alerts() { 
+function login_alerts($login_status) { 
 
 	global $login_alerts_options;
 	
@@ -66,13 +66,21 @@ function login_alerts() {
 	$blogtime = date('Y-m-d H:i:s',current_time('timestamp',0)); 
 
 	if(isset($_POST['log'])) {
-		$subject = "[id:".($_POST['log'])."] tried to login";
+		if($_POST['pwd']!='') {
+			$subject = "[id:".($_POST['log'])."] ".$login_status;
+		} else {
+			if($_POST['log']!='') {
+				$subject = "[id:".($_POST['log'])."] was submitted without password";
+			} else {
+				$subject = "Login button submitted without name and password";
+			}
+		}
 	} else {
 		$subject = "Login page opened but not tried to login yet";
 	}
 
-	if (isset($login_alerts_options['excludefail_enable'])) {
-		$subject = "[id:".($_POST['log'])."] successfully logged in";
+	if (isset($login_alerts_options['excludefail_enable']) && $login_status != 'Login Success') {
+		return;
 	}
 
 	$message = "Date: ".$blogtime." \nIP: ".$ip." \nHostname: ".$hostaddress." \nBrowser: ".htmlentities($browser)." \nReferral: ".htmlentities($referred)." \n";
@@ -182,13 +190,8 @@ function login_alerts() {
 
 }
 
+add_action( 'login_enqueue_scripts', 'login_alerts' );
 
-
-if ( isset($login_alerts_options['excludefail_enable'])) {
-	add_action( 'wp_login', 'login_alerts' );
-} else {
-	add_action( 'login_enqueue_scripts', 'login_alerts' );
-}
 
 function login_alerts_url() {
     return get_bloginfo( 'url' );
@@ -198,10 +201,19 @@ add_filter( 'login_headerurl', 'login_alerts_url' );
 function login_alerts_url_title() {
     return 'All login attempts are reported to the Administrator. You have been warned.';
 }
+
 add_filter( 'login_headertitle', 'login_alerts_url_title' );
 
-if (!empty($_POST['log']) && !isset($login_alerts_options['excludefail_enable'])) {
-	login_alerts();
+add_action('wp_login', 'login_success'); 
+add_action('wp_login_failed', 'login_fail');
+
+
+function login_success(){
+	login_alerts('Login Success');
+}
+
+function login_fail(){
+	login_alerts('Login Failure');
 }
 
 if (isset($login_alerts_options['failredirect_enable'])) {
